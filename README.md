@@ -1,6 +1,6 @@
 # CareLoop Clinics — No-Show Guard
 
-**GitHub Repository:** <YOUR_PUBLIC_GITHUB_REPO_URL>
+**GitHub Repository:** <https://github.com/Bhp05/careloop-noshow-guard>
 
 ## Summary
 CareLoop Clinics — No-Show Guard ingests and cleans outpatient appointment records, enriches clinic locations with temperature data from Open-Meteo, and verifies appointment and no-show counts in SQL[cite: 2, 3, 4]. It trains machine learning classifiers on `appointments_clean.csv` (`990` rows, `16` columns) to predict missed visits and extracts structured insights from follow-up call notes using Gemini and Pydantic validation[cite: 1, 2, 3, 8]. Combining booking, patient, and clinic features with follow-up note analysis helps clinics spot high-risk appointments and recurring operational issues[cite: 1, 2, 3]. This repository contains the end-to-end notebooks, SQL scripts, generated outputs, `data/` files, and documentation[cite: 1, 2, 3, 4].
