@@ -1,0 +1,17 @@
+# CareLoop Clinics — No-Show Guard
+
+**GitHub Repository:** <https://github.com/Bhp05/careloop-noshow-guard>
+
+## Summary
+CareLoop Clinics — No-Show Guard ingests and cleans outpatient appointment records, enriches clinic locations with temperature data from Open-Meteo, and verifies appointment and no-show counts in SQL[cite: 2, 3, 4]. It trains machine learning classifiers on `appointments_clean.csv` (`990` rows, `16` columns) to predict missed visits and extracts structured insights from follow-up call notes using Gemini and Pydantic validation[cite: 1, 2, 3, 8]. Combining booking, patient, and clinic features with follow-up note analysis helps clinics spot high-risk appointments and recurring operational issues[cite: 1, 2, 3]. This repository contains the end-to-end notebooks, SQL scripts, generated outputs, `data/` files, and documentation[cite: 1, 2, 3, 4].
+
+## Recommendation
+Prioritize proactive outreach on bookings with higher risk factors—such as longer booking lead times, prior no-shows, or missing reminders—and use a `0.35` probability threshold rather than `0.50` to catch more likely no-shows[cite: 2, 3]. Across the `990` cleaned appointments (`218` total no-shows, or `22.0%`), `296` bookings (`29.9%`) have `lead_days > 14`, and on the `198`-row test set (`49` actual no-shows), lowering the threshold from `0.50` improves recall over the `0.3469` recall seen at default `0.50` prediction[cite: 2, 3]. Combining risk-prioritized follow-ups with reminder checks and clinic-level review (such as high-rate clinics like Hadapsar Care Centre at `27.3%`) helps reduce missed slots without overloading clinic staff[cite: 2, 3, 4, 9].
+
+## Model Choice
+We selected **Logistic Regression** (inside a `Pipeline` with `StandardScaler`) because it achieved the strongest test performance among the evaluated models with **ROC-AUC `0.7885`** and **test accuracy `0.7879`** (compared to the `0.7525` majority-class baseline, Depth-3 Decision Tree test accuracy `0.7778`, and Random Forest test accuracy `0.7525` / ROC-AUC `0.6927`)[cite: 2, 9]. It also avoids the severe overfitting of an unconstrained depth-`15` Decision Tree (`1.0000` train accuracy vs. `0.7020` test accuracy) while providing calibrated probabilities suited for thresholding at `0.35`[cite: 2].
+
+## Limitations
+1. **Dataset size and note coverage:** The cleaned appointment table has `990` rows (after dropping `20` duplicate rows, `6` unreadable dates, and `4` blank statuses from `1,020` raw rows, with `32` rows isolated in `rejected_rows.json`), and the GenAI batch covers `10` call notes (`1` blank note `N004` skipped and `3` rows `N001`, `N002`, `N008` marked `invalid` in that run)[cite: 1, 2, 3, 5, 8].
+2. **Preprocessing and modeling assumptions:** Cleaning imputations/capping were performed on the cleaned dataset prior to the `792`/`198` train-test split, and repeat patients appear across multiple appointments treated as independent rows[cite: 2, 3, 6].
+3. **External API quotas and transient errors:** Live Open-Meteo enrichment and Gemini API calls are subject to network availability, transient `503 UNAVAILABLE` spikes, and free-tier daily quota limits (`429 RESOURCE_EXHAUSTED` at `20` requests/day on `gemini-3.6-flash`)[cite: 1, 3].
